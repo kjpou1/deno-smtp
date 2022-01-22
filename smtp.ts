@@ -79,11 +79,27 @@ export class SmtpClient {
     const [from, fromData] = this.parseAddress(config.from);
     const [to, toData] = this.parseAddress(config.to);
     const date = config.date ?? new Date().toString();
-
+    const carbons = this.parseAddresses(config.cc ?? []);
+    const blindCarbons = this.parseAddresses(config.bcc ?? []);
+    
     await this.writeCmd("MAIL", "FROM:", from);
     this.assertCode(await this.readCmd(), CommandCode.OK);
     await this.writeCmd("RCPT", "TO:", to);
     this.assertCode(await this.readCmd(), CommandCode.OK);
+
+    // Now we write the list of carbon copies
+    for (const carbon of carbons)
+    {
+      await this.writeCmd("RCPT", "TO:", carbon.address);
+      this.assertCode(await this.readCmd(), CommandCode.OK);
+    }
+
+    for (const blindCarbon of blindCarbons)
+    {
+      await this.writeCmd("RCPT", "TO:", blindCarbon.address);
+      this.assertCode(await this.readCmd(), CommandCode.OK);
+    }
+
     await this.writeCmd("DATA");
     this.assertCode(await this.readCmd(), CommandCode.BEGIN_DATA);
 
@@ -91,6 +107,12 @@ export class SmtpClient {
     await this.writeCmd("From: ", fromData);
     await this.writeCmd("To: ", toData);
     await this.writeCmd("Date: ", date);
+
+    // Write out the list of carbon copies but not the blind carbon copies
+    for (const carbon of carbons)
+    {
+      await this.writeCmd("Cc: ", carbon.addressData)
+    }    
 
     if (config.attachments && config.attachments.length > 0) {
       await this.writeCmd(
@@ -218,4 +240,18 @@ export class SmtpClient {
       ? [`<${m[2]}>`, email]
       : [`<${email}>`, `<${email}>`];
   }
+
+  private parseAddresses(emails: string[]): [Record<string, string>] {
+    const emailComponents: [Record<string, string>] = ([] as unknown) as [Record<string, string>];
+    if (emails && emails.length > 0)
+    {
+      for (const email of emails)
+      {
+        const [address, addressData] = this.parseAddress(email);
+        emailComponents.push({address, addressData})
+      }
+    }
+    return emailComponents;
+  }
+
 }

@@ -20,6 +20,8 @@ if (TLS) {
 await client.send({
   from: MAIL_USER,
   to: MAIL_TO_USER,
+  cc: ["root@deno.land", "Deno Land <root@deno.land>"],
+  bcc: ["root@deno.land", "Deno Land <root@deno.land>"],
   subject: "Deno Smtp build Success" + Math.random() * 1000,
   content: "plain text email",
   html: `
