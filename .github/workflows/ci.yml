@@ -12,14 +12,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
+      # Setup deno version
       - name: Install Deno
-        uses: denolib/setup-deno@master
+        uses: denolib/setup-deno@v2
         with:
-          deno-version: 1.13.x
+          deno-version: 1.117.0
 
       - name: Test
         env:
-          HOSTNAME: smtp.163.com
+          HOSTNAME: smtp.gmail.com
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}
           MAIL_TO_USER: ${{ secrets.MAIL_USER }}
