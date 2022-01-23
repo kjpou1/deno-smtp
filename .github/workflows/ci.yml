@@ -11,17 +11,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest] # [macos-latest, ubuntu-latest, windows-latest]
-        deno_version: [0.121.0, 0.122.0]
+        deno_version: [~1.17, ~1.18]
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
       
       # Setup deno version
-      - name: Use Deno Version ${{ matrix.deno_version }}
-        uses: denolib/setup-deno@v2
+      - name: Use Deno Version ${{ matrix.deno-version }}
+        uses: denoland/setup-deno@v1
         with:
-          deno-version: ${{ matrix.deno_version }}
+          deno-version: ${{ matrix.deno-version }}
 
       - name: Test
         env:
