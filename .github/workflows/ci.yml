@@ -8,16 +8,21 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest] # [macos-latest, ubuntu-latest, windows-latest]
+        #deno_version: [1.17.1, 1.17.2]
+        deno_version: [1.17.1]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
       
       # Setup deno version
-      - name: Install Deno
+      - name: Use Deno Version ${{ matrix.deno_version }}
         uses: denolib/setup-deno@v2
         with:
-          deno-version: 1.117.0
+          deno-version: ${{ matrix.deno_version }}
 
       - name: Test
         env:
